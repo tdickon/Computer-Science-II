@@ -1,0 +1,42 @@
+==============================================================================
+ Basics for openning a file for milestone 2 of Project 1.
+
+#include iostream
+#include fstream
+#include cstdlib
+#include bigint.hpp
+
+int main()
+ {
+
+    stdifstream in(data1-1.txt);     Define stream for input
+    if(!in) {                            Make sure it opened correctly.
+        stdcerr  Could not open data1-1.txt, exiting.  stdendl;
+        exit(1);
+    }
+    
+    bigint bi1, bi2,result1;
+    in  bi1; If the comments beside the while loop, then these input operators are ommited.
+    in  bi2;
+    while(!in.eof()) (in  bi1 && in  bi2)
+      {
+	     
+	
+	
+	stdcout  Bi1   stdendl;
+	stdcout  bi1  stdendl;
+
+	stdcout  Bi2   stdendl;
+	stdcout  bi2  stdendl;
+
+	result1 = bi1 + bi2;
+	stdcout  bi1 + bi2 =  stdendl; 
+	stdcout   result1  stdendl;
+
+	in  bi1; If the comments above are used in the while loop then this is ommited.
+	in  bi2;
+      }
+
+    in.close();
+    return 0;
+}
