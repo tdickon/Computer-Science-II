@@ -4,7 +4,7 @@
  * @version 1.0
  * @date Spring 2017
  * @authors Dr. J. Maletic and Michael John Decker
- * @USED WITH PERMISSION FROM ABOVE AUTHORS 
+ *
  * Interface definition of String class for use with test oracle.
  * For use with Project 2, milestone 2, 3, 4.
  *
@@ -20,7 +20,7 @@
 #define CS23001_STRING_INTERFACE_HPP
 
 #include <iostream>
-
+#include <vector>
 /**
  * @invariant str[length()] == 0
  *         && length()      == capacity()
@@ -82,6 +82,17 @@ public:
     // i/o
     friend std::ostream& operator<<(std::ostream &, const String &);
     friend std::istream& operator>>(std::istream &, String &);
+
+  // Substring Operator
+  String substr(int, int) const;
+
+
+  // Find functions
+  int find(char, int) const;
+  int find(const String &, int) const;
+
+  //Vector
+  std::vector<String> split(char);
 
 };
 
