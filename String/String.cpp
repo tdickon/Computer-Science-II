@@ -1,8 +1,8 @@
 #include <iostream>
 #include <cassert>
 #include "string.hpp"
-
-//==========================================================================================================================
+#include <vector>
+//================================================================================================
 /**
  **Class definitions created by Tyler Dickon
  **Using class prototypes from class.
@@ -47,8 +47,8 @@ String::String(int size)
   str = new char [string_size];
   str[size - 1] = '\0';
 }
-
-//3.)Initializes to a constant string size.
+//--------------------------------------------------------------------------
+//4.)Initializes to a constant string size.
 String::String(const char * ch)
 {
   int pos = 0;
@@ -171,8 +171,7 @@ String String::operator+(const String & rhs) const
   std::cout << std::endl;
   return result;
 }
-
-
+//---------------------------------------------------------------------------
 //2.)assignment overloading
 String & String::operator+=(String rhs)
 {
@@ -199,6 +198,8 @@ String & String::operator+=(String rhs)
   std::cout << std::endl;
   return *this;
 }
+//--------------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------------
 //                         EQUALALITY OPERATOR OVERLOAD
@@ -219,6 +220,7 @@ bool String::operator==(const String & rhs) const
   return this->str[pos] == rhs.str[pos];    
 }
 //-------------------------------------------------------------------------
+
 
 //-------------------------------------------------------------------------
 //                         SWAPPING FUNCTION
@@ -246,6 +248,7 @@ String& String::operator=(String rhs)
 }
 //--------------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------------
 //                         LESS THAN OPERATOR OVERLOAD
 //--------------------------------------------------------------------------
@@ -259,6 +262,8 @@ bool String::operator<(const String& rhs) const
 
   return str[pos] < rhs.str[pos];
 }
+//--------------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------------
 //                     OUTPUT OPERATOR OVERLOADING
@@ -270,17 +275,323 @@ std::ostream & operator<<(std::ostream & out, const String & rhs)
 }
 //--------------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------------
 //                     INPUT OPERATOR OVERLOADING
 //--------------------------------------------------------------------------
 std::istream & operator>>(std::istream& in, String & rhs)
 {
-  in >> rhs.str;
+  rhs = "";
+  char tmp[500];
+  if(in >> tmp)
+    {
+      String returnString(tmp);
+      rhs = tmp;
+    }
   return in;
 }
 //------------------------------------------------------------------------
 
-//=====================================================================================================================================================
+
+//------------------------------------------------------------------------
+//                         SUBSTRING OPERATOR
+//------------------------------------------------------------------------
+//1.)Returns a string, starting at where the user specified to look
+String String::substr(int startPos, int count) const
+{
+  //Need to check to see if you're looking at an unitialized variable.
+  if(str[0] == '\0')
+    {
+      String tmp;
+      return tmp;
+    }
+  //Sub (Substring) gets the range of characters needed to be output. 
+  int sub = startPos + count;
+  int len = length();
+
+  if(startPos > len)
+    {
+      String tmp;
+      std::cerr << "ERROR: THE STARTING POSITION IS OUTSIDE OF THE LENGTH OF THE STRING." << std::endl;
+      return tmp;
+    }
+  //checks to make sure we wont access past the characters. 
+  if( sub > len)
+    {
+      int tmp = sub - len;
+      count = count - tmp;
+    }
+
+  char tmp [count];
+  
+  //We need to check to see if the user only asks for the firs #
+  if(count == 0)
+    {
+      count += 1;
+      tmp[0] = str[startPos];
+      tmp[1] = '\0';
+      String subString(tmp);
+      return subString;
+    }
+
+  int charCount = 0;
+
+  for (int index = 0; index < count; ++index)
+    {
+      tmp[index] = str[startPos];
+      ++startPos;
+      ++charCount;
+    }
+  ++charCount; 
+  tmp[count] = '\0';
+  
+  String subS(charCount, tmp); //Create the return string. 
+  return subS;
+}
+//------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------
+//                         FIND FUNCTIONS
+//------------------------------------------------------------------------
+//1.)Finds the first instance of a character that the user specifies. 
+int String::find(char ch, int startPos) const
+{
+  int len = length();
+
+  //Make sure that the string actually has characters.
+  if(str[0] == '\0')
+    {
+      std::cout << "\n ERROR: The string you are accessing has no values." << std::endl;
+      return -1;
+    }
+
+  //Check to Make sure they aren't searching outside of the String. 
+  if (startPos > len)
+    {
+      std::cout << "\n ERROR: You are trying to access outside of the string." << std::endl;
+      return -1;
+    }
+
+  for (int index = startPos; index <= len; ++index)
+    {
+      //Check to see if we're on the last element, and if it's not the right value return -1;
+      if (index == len && str[index] != ch) {return -1;}
+      //If the element == the character, return the index #;
+      if (str[index] == ch) { return index; }
+    }
+}
+//------------------------------------------------------------------------
+//2.)Find a particular string subset out of a larger string & return the start pos
+int String::find(const String & search, int startPos) const 
+{
+  int searchLength = search.length();
+  int len = length();
+
+  //Check to see if the startPos is beyond the original string length.
+  if (startPos > len)
+    {
+      std::cout << "ERROR: Your Starting Position is not inside the current string." << std::endl;
+      return -1;
+    }
+
+  int total = startPos + searchLength;
+
+  //Check to see if the startPos & total values is inside the string.
+  if (total > len)
+    {
+      std::cout << "ERROR: Your Search String is too big for the original string." << std::endl;
+      return -1;
+    }
+
+  //Check to see if the user is searching for just one character and return the first instance.
+  if(searchLength == 1)
+    {
+      int result = find(search[0], startPos);
+      return result;
+    }
+    
+  bool check = true;
+  for (int i = 0; i < len; ++i)
+    {
+      if((str[i] != search[0]) && ((i + searchLength) > len))
+	{
+	  std::cout << check << std::endl;
+	  return -1;
+	}
+
+      if (str[i] == search[0])
+	{
+	  check = true;
+	  int searchIndex = 0;
+	  int oIndex = i;
+	  while (searchIndex < searchLength)
+	    {
+	      if (search[searchIndex] != str[oIndex])
+		{
+		  check = false;
+		  break;
+		}
+	    
+	      ++searchIndex;
+	      ++oIndex;
+	    }
+
+	  if (check == true)
+	    {
+	      std::cout << check << std::endl;
+	      return i;
+	    }
+	}
+	
+    }
+}
+	
+//------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------
+//                          SPLIT FUNCTION
+//------------------------------------------------------------------------
+//1.)Takes a string and creates a series of substrings.
+std::vector<String> String::split(char delimit)
+{
+  std::vector<String> split;
+  int len = length();
+
+  //find the first instance of a delimited character;
+  //int prevMark = 0;
+  int index = 0;
+  
+  int prevMark = 0;
+
+  int delimitedMark = find(delimit, index);
+
+  //If we don't find the delimiter return the whole string.
+  if (delimitedMark == -1)
+    {
+      std::cout << "ERROR: the delimiter you are trying to parse, does not exist" << std::endl;
+      String result;
+      split.push_back(result);
+      return split;
+    }
+
+  //If the first delimiter is at element zero, move on to the next, element. 
+  if(delimitedMark == 0)
+    {
+      index = delimitedMark + 1;
+      
+      //Find the next substr
+      delimitedMark = find(delimit, index);
+    }
+
+  while (index < len)
+    {
+      std::cout << "DelimitedMark: " << delimitedMark << std::endl;
+      //checking to see if we reached the last string value;
+      if (delimitedMark == -1)
+	{ 
+	  int offset = prevMark + 1;
+	  int total = (len - prevMark);
+	  int subIndex = 0;
+	  String result = substr(offset, total);
+	  std::cout << result << std::endl;
+	  std::cout << "tmp size: " << result.string_size << std::endl;
+	  std::cout << "tmp length: " << result.length() << std::endl;
+	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
+	  std::cout << std::endl;
+	  split.push_back(result);
+	  index = (len);
+	  continue;
+	}
+      
+      //A special testcase in case there is a one character string at the start of the array.
+      if((delimitedMark - prevMark) == 1 && str[prevMark] != delimit)
+	{
+	  String result(str[prevMark]);
+	  std::cout << result << std::endl;
+	  std::cout << "tmp size: " << result.string_size << std::endl;
+	  std::cout << "tmp length: " << result.length() << std::endl;
+	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
+	  std::cout << std::endl;
+	  split.push_back(result);
+
+	  prevMark = delimitedMark;
+	  index = delimitedMark + 1;
+      
+	  //Find the next substr
+	  delimitedMark = find(delimit, index);
+	  continue;
+	}
+      
+      //Checking to see if there is an empty set
+      if ((delimitedMark - prevMark) == 1 && str[prevMark] == delimit)
+	{
+	  String result;
+	  std::cout << result << std::endl;
+	  std::cout << "tmp size: " << result.string_size << std::endl;
+	  std::cout << "tmp length: " << result.length() << std::endl;
+	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
+	  std::cout << std::endl;
+	  split.push_back(result);
+
+	  prevMark = delimitedMark;
+	  index = delimitedMark + 1;
+      
+	  //Find the next substr
+	  delimitedMark = find(delimit, index);
+	  continue;
+	}
+
+      //Searching for substrings as long as the delimited marker is not an empty set
+      if (delimitedMark > 1)
+	{
+	  int offset;
+	  int total;
+	  if (prevMark == 0 && str[0] == delimit)
+	    {
+	      offset = 1;
+	      total = (delimitedMark - prevMark);
+	    }
+	  
+	  else  if (prevMark == 0 && str[0] != delimit)
+	    {
+	      offset = prevMark;
+	      total = (delimitedMark - prevMark);
+	    }
+
+	  else 
+	    {
+	      offset = prevMark + 1;
+	      std::cerr << "Is else called?"; std::cout << std::endl;
+	      std::cerr << "offset: " << offset; std::cout << std::endl;
+	      total = (delimitedMark - prevMark - 1);
+	      std::cerr<< "DelimitedMark: " << delimitedMark; std::cout << std::endl;
+	      std::cerr<< "Previous Mark: " << prevMark; std::cout << std::endl;
+	      std::cerr << "DelimitedMark + PrevMark = " << total; std::cout << std::endl;
+	    }
+	  
+	  int subIndex = 0;
+	  String result = substr(offset, total);
+	  
+	  std::cout << result << std::endl;
+	  std::cout << "tmp size: " << result.string_size << std::endl;
+	  std::cout << "tmp length: " << result.length() << std::endl;
+	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
+	  std::cout << std::endl;
+	  split.push_back(result);
+	}
+
+      prevMark = delimitedMark;
+      index = delimitedMark + 1;
+      
+      //Find the next substr
+      delimitedMark = find(delimit, index);
+    }
+
+  return split;
+}
+//========================================================================================================
 
   //**Free Functions created by Tyler Dickon
   //**Created on 2/26/2016
@@ -397,4 +708,3 @@ bool operator!=(const String & lhs, const String & rhs)
   return !(lhs == rhs);
 }
 //-------------------------------------------------------------------------
-//==========================================================================================================================
