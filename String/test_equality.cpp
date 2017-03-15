@@ -171,7 +171,38 @@ int main()
     check = (s1 != s2);
     assert(check == true);
     std::cout << s1 << " is not equal to " << s2 << "? " << check << std::endl;
-  }
+ }
+
+ std::cout << std::endl;
+ std::cout << std::endl;
+
+ {
+   String s1 = "apple";
+   char *s2 = "tree";
+   bool check;
+   assert(s1 == "apple");
+   assert(s2 == "tree");
+   check = (s1 < s2);
+   assert(check == true);
+   std::cout << s1 << " is less than " << s2 << "? " << check << std::endl;
+   
+   check = (s1 <= s2);
+   assert(check == true);
+   std::cout << s1 << " is less than or equal to " << s2 << "? " << check << std::endl;
+   
+   check = (s1 > s2);
+   assert(check == false);
+   std::cout << s1 << " is greater than " << s2 << "? " << check << std::endl;
+   
+   check = (s1 >= s2);
+   assert(check == false);
+   std::cout << s1 << " is greater than or equal to " << s2 << "? " << check << std::endl;
+   
+   check = (s1 != s2);
+   assert(check == true);
+   std::cout << s1 << " is not equal to " << s2 << "? " << check << std::endl;
+ }
+
  std::cout << std::endl;
  std::cout << std::endl;
 
