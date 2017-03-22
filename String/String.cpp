@@ -85,7 +85,6 @@ String::String(const String & og)
 {
   this->string_size = og.string_size;
   this->str = new char [string_size];
-  std::cout << std::endl;
 
   for (int index = 0; index < this->string_size; ++index) { this->str[index] = og.str[index]; }
 }
@@ -160,15 +159,6 @@ String String::operator+(const String & rhs) const
     }
   result.str[offset+pos] = '\0';
 
-  for (int index = 0; index < result.string_size; ++index)
-    {
-      std::cerr << "str[" << index << "]: " << result.str[index]; std::cout << std::endl;
-    }
-
-  std::cerr << "STRING SIZE: "<< result.string_size; std::cout << std::endl;
-  std::cerr << "LENGTH: " << result.length(); std::cout << std::endl;
-  std::cerr << "CAPACITY: " << result.capacity(); std::cout << std::endl;
-  std::cout << std::endl;
   return result;
 }
 //---------------------------------------------------------------------------
@@ -187,15 +177,6 @@ String & String::operator+=(String rhs)
     }
   this->str[offset+pos] = '\0';
 
-  for (int index = 0; index < this->string_size; ++index)
-    {
-      std::cerr << "str[" << index << "]: " << this->str[index]; std::cout << std::endl;
-    }
-
-  std::cerr << "STRING SIZE: "<< this->string_size; std::cout << std::endl;
-  std::cerr << "LENGTH: " << this->length(); std::cout << std::endl;
-  std::cerr << "CAPACITY: " << this->capacity(); std::cout << std::endl;
-  std::cout << std::endl;
   return *this;
 }
 //--------------------------------------------------------------------------
@@ -309,12 +290,12 @@ String String::substr(int startPos, int count) const
   int sub = startPos + count;
   int len = length();
 
+  //If the startposition is greater than string, just return the string.
   if(startPos > len)
     {
-      String tmp;
-      std::cerr << "ERROR: THE STARTING POSITION IS OUTSIDE OF THE LENGTH OF THE STRING." << std::endl;
-      return tmp;
+      return str;
     }
+
   //checks to make sure we wont access past the characters. 
   if( sub > len)
     {
@@ -324,13 +305,10 @@ String String::substr(int startPos, int count) const
 
   char tmp [count];
   
-  //We need to check to see if the user only asks for the firs #
+  //We need to check to see if the user asks for an empty string
   if(count == 0)
     {
-      count += 1;
-      tmp[0] = str[startPos];
-      tmp[1] = '\0';
-      String subString(tmp);
+      String subString;
       return subString;
     }
 
@@ -362,14 +340,25 @@ int String::find(char ch, int startPos) const
   //Make sure that the string actually has characters.
   if(str[0] == '\0')
     {
-      std::cout << "\n ERROR: The string you are accessing has no values." << std::endl;
-      return -1;
+      if(startPos != 0)
+	{
+	  return -1;
+	}
+
+      else if(ch != '\0')
+	{
+	  return -1;
+	}
+      
+      else
+	{
+	  return 0;
+	}
     }
 
   //Check to Make sure they aren't searching outside of the String. 
   if (startPos > len)
     {
-      std::cout << "\n ERROR: You are trying to access outside of the string." << std::endl;
       return -1;
     }
 
@@ -380,18 +369,37 @@ int String::find(char ch, int startPos) const
       //If the element == the character, return the index #;
       if (str[index] == ch) { return index; }
     }
+  return 0;
 }
 //------------------------------------------------------------------------
 //2.)Find a particular string subset out of a larger string & return the start pos
 int String::find(const String & search, int startPos) const 
 {
+
+  if(str[0] == '\0')
+    {
+      if(startPos != 0)
+	{
+	  return -1;
+	}
+
+      else if(search != '\0')
+	{
+	  return -1;
+	}
+      
+      else
+	{
+	  return 0;
+	}
+    }
+
   int searchLength = search.length();
   int len = length();
 
   //Check to see if the startPos is beyond the original string length.
   if (startPos > len)
     {
-      std::cout << "ERROR: Your Starting Position is not inside the current string." << std::endl;
       return -1;
     }
 
@@ -400,7 +408,6 @@ int String::find(const String & search, int startPos) const
   //Check to see if the startPos & total values is inside the string.
   if (total > len)
     {
-      std::cout << "ERROR: Your Search String is too big for the original string." << std::endl;
       return -1;
     }
 
@@ -445,6 +452,7 @@ int String::find(const String & search, int startPos) const
 	}
 	
     }
+  return 0;
 }
 	
 //------------------------------------------------------------------------
@@ -460,7 +468,7 @@ std::vector<String> String::split(char delimit)
   int len = length();
 
   //find the first instance of a delimited character;
-  //int prevMark = 0;
+ 
   int index = 0;
   
   int prevMark = 0;
@@ -470,36 +478,31 @@ std::vector<String> String::split(char delimit)
   //If we don't find the delimiter return the whole string.
   if (delimitedMark == -1)
     {
-      std::cout << "ERROR: the delimiter you are trying to parse, does not exist" << std::endl;
       String result;
       split.push_back(result);
       return split;
     }
 
-  //If the first delimiter is at element zero, move on to the next, element. 
-  if(delimitedMark == 0)
+  if (delimitedMark == 0)
     {
-      index = delimitedMark + 1;
-      
-      //Find the next substr
+      String result;
+      split.push_back(result);
+      prevMark = 0;
+      ++index;
       delimitedMark = find(delimit, index);
     }
 
   while (index < len)
     {
-      std::cout << "DelimitedMark: " << delimitedMark << std::endl;
+
       //checking to see if we reached the last string value;
       if (delimitedMark == -1)
-	{ 
+	{
 	  int offset = prevMark + 1;
 	  int total = (len - prevMark);
 	  int subIndex = 0;
 	  String result = substr(offset, total);
-	  std::cout << result << std::endl;
-	  std::cout << "tmp size: " << result.string_size << std::endl;
-	  std::cout << "tmp length: " << result.length() << std::endl;
-	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
-	  std::cout << std::endl;
+	  	 
 	  split.push_back(result);
 	  index = (len);
 	  continue;
@@ -509,11 +512,6 @@ std::vector<String> String::split(char delimit)
       if((delimitedMark - prevMark) == 1 && str[prevMark] != delimit)
 	{
 	  String result(str[prevMark]);
-	  std::cout << result << std::endl;
-	  std::cout << "tmp size: " << result.string_size << std::endl;
-	  std::cout << "tmp length: " << result.length() << std::endl;
-	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
-	  std::cout << std::endl;
 	  split.push_back(result);
 
 	  prevMark = delimitedMark;
@@ -528,15 +526,10 @@ std::vector<String> String::split(char delimit)
       if ((delimitedMark - prevMark) == 1 && str[prevMark] == delimit)
 	{
 	  String result;
-	  std::cout << result << std::endl;
-	  std::cout << "tmp size: " << result.string_size << std::endl;
-	  std::cout << "tmp length: " << result.length() << std::endl;
-	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
-	  std::cout << std::endl;
 	  split.push_back(result);
 
 	  prevMark = delimitedMark;
-	  index = delimitedMark + 1;
+	  ++index;
       
 	  //Find the next substr
 	  delimitedMark = find(delimit, index);
@@ -551,7 +544,7 @@ std::vector<String> String::split(char delimit)
 	  if (prevMark == 0 && str[0] == delimit)
 	    {
 	      offset = 1;
-	      total = (delimitedMark - prevMark);
+	      total = (delimitedMark - offset);
 	    }
 	  
 	  else  if (prevMark == 0 && str[0] != delimit)
@@ -563,30 +556,37 @@ std::vector<String> String::split(char delimit)
 	  else 
 	    {
 	      offset = prevMark + 1;
-	      std::cerr << "Is else called?"; std::cout << std::endl;
-	      std::cerr << "offset: " << offset; std::cout << std::endl;
 	      total = (delimitedMark - prevMark - 1);
-	      std::cerr<< "DelimitedMark: " << delimitedMark; std::cout << std::endl;
-	      std::cerr<< "Previous Mark: " << prevMark; std::cout << std::endl;
-	      std::cerr << "DelimitedMark + PrevMark = " << total; std::cout << std::endl;
 	    }
 	  
 	  int subIndex = 0;
 	  String result = substr(offset, total);
-	  
-	  std::cout << result << std::endl;
-	  std::cout << "tmp size: " << result.string_size << std::endl;
-	  std::cout << "tmp length: " << result.length() << std::endl;
-	  std::cout << "tmp capacity: " << result.capacity() << std::endl;
-	  std::cout << std::endl;
 	  split.push_back(result);
 	}
 
       prevMark = delimitedMark;
+      
       index = delimitedMark + 1;
       
+
+      if (index ==  len)
+	{
+	 
+	  String result;
+	  split.push_back(result);
+	  index = len;
+	  break;
+	}
       //Find the next substr
       delimitedMark = find(delimit, index);
+      
+      if((delimitedMark + 1) == len && (delimitedMark - 1) == prevMark)
+	{
+	  String result;
+	  split.push_back(result);
+	  index = len - 1;
+	  continue;
+	}
     }
 
   return split;
@@ -604,7 +604,7 @@ std::vector<String> String::split(char delimit)
 //                      ADDITION OPERATOR OVELOADING
 //--------------------------------------------------------------------------
 //1.)Overloading to allow a character array add to a String object.
-String operator+(const char *lhs, String & rhs)
+String operator+(const char *lhs, const String & rhs)
 {
   String tmp(lhs);
   String result = tmp + rhs;
@@ -645,7 +645,7 @@ bool operator==(char lhs, const String & rhs)
 //                    LESS THAN OPERATOR OVELOADING
 //-------------------------------------------------------------------------
 //1.)Allows us to see if a character array is less than a string object.
-bool operator<(char *lhs, const String & rhs)
+bool operator<(const char *lhs, const String & rhs)
 {
   String tmp(lhs);
   return (tmp < rhs);
